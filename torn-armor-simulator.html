@@ -97,7 +97,7 @@
 
 <div class="container">
 
-    <h1>Torn Armor Piece Damage Simulator</h1>
+    <h1>Torn Chest Armor Simulator</h1>
 
     <div class="grid">
 
@@ -113,6 +113,9 @@
             Coverage (%)
             <input id="armor1coverage" value="27.45">
 
+            Quality (%)
+            <input id="armor1quality" value="23.57">
+
         </div>
 
 
@@ -127,6 +130,9 @@
 
             Coverage (%)
             <input id="armor2coverage" value="26.5">
+
+            Quality (%)
+            <input id="armor2quality" value="27.23">
 
         </div>
 
@@ -153,9 +159,12 @@
 
 <script>
 
-    function simulateArmor(armorValue, coverage, weaponDamage, trials){
+    function simulateArmor(armorValue, coverage, quality, weaponDamage, trials){
 
         let totalDamage = 0;
+
+        // Convert quality into flat reduction
+        let qualityReduction = quality / 20;
 
         for(let i=0;i<trials;i++){
 
@@ -163,9 +172,16 @@
 
             let damage = weaponDamage;
 
+            // Apply % reduction if armor is hit
             if(hitArmor){
-                damage = weaponDamage * (1 - armorValue/100);
+                damage = damage * (1 - armorValue/100);
             }
+
+            // Apply flat reduction from quality
+            damage -= qualityReduction;
+
+            // Prevent negative damage
+            if(damage < 0) damage = 0;
 
             totalDamage += damage;
         }
@@ -185,16 +201,18 @@
 
         let armor1value = parseFloat(document.getElementById("armor1value").value);
         let armor1coverage = parseFloat(document.getElementById("armor1coverage").value);
+        let armor1quality = parseFloat(document.getElementById("armor1quality").value);
 
         let armor2value = parseFloat(document.getElementById("armor2value").value);
         let armor2coverage = parseFloat(document.getElementById("armor2coverage").value);
+        let armor2quality = parseFloat(document.getElementById("armor2quality").value);
 
         let weaponDamage = parseFloat(document.getElementById("weaponDamage").value);
         let trials = parseInt(document.getElementById("trials").value);
 
 
-        let armor1 = simulateArmor(armor1value, armor1coverage, weaponDamage, trials);
-        let armor2 = simulateArmor(armor2value, armor2coverage, weaponDamage, trials);
+        let armor1 = simulateArmor(armor1value, armor1coverage, armor1quality, weaponDamage, trials);
+        let armor2 = simulateArmor(armor2value, armor2coverage, armor2quality, weaponDamage, trials);
 
 
         let better = armor1.avgDamage < armor2.avgDamage ? name1 : name2;
@@ -206,12 +224,12 @@
 
     <b>${name1}</b><br>
     Total Damage Taken: ${armor1.totalDamage.toFixed(2)}<br>
-    Average Damage Taken: ${armor1.avgDamage.toFixed(4)}
+    Average Damage: ${armor1.avgDamage.toFixed(4)}
     <br><br>
 
     <b>${name2}</b><br>
     Total Damage Taken: ${armor2.totalDamage.toFixed(2)}<br>
-    Average Damage Taken: ${armor2.avgDamage.toFixed(4)}
+    Average Damage: ${armor2.avgDamage.toFixed(4)}
     <br><br>
 
     <div class="better">Better Armor: ${better}</div>
