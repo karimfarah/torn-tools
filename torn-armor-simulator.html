@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Torn Armor Simulator</title>
+
+    <style>
+
+        body{
+            font-family: Arial, Helvetica, sans-serif;
+            background:#0f1115;
+            color:#e4e6eb;
+            margin:0;
+            padding:40px;
+        }
+
+        .container{
+            max-width:900px;
+            margin:auto;
+            background:#1b1f26;
+            padding:30px;
+            border-radius:10px;
+            box-shadow:0 0 15px rgba(0,0,0,0.6);
+        }
+
+        h1{
+            text-align:center;
+            margin-bottom:30px;
+            color:#8ab4ff;
+        }
+
+        .grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:30px;
+        }
+
+        .card{
+            background:#13161c;
+            padding:20px;
+            border-radius:8px;
+            border:1px solid #2a2f3a;
+        }
+
+        .card h2{
+            margin-top:0;
+            color:#7bd389;
+        }
+
+        input{
+            width:100%;
+            padding:8px;
+            margin-bottom:12px;
+            border:none;
+            border-radius:4px;
+            background:#2a2f3a;
+            color:white;
+        }
+
+        .section{
+            margin-top:25px;
+        }
+
+        button{
+            width:100%;
+            padding:14px;
+            margin-top:20px;
+            background:#7bd389;
+            border:none;
+            border-radius:6px;
+            font-size:16px;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        button:hover{
+            background:#6ac17a;
+        }
+
+        .results{
+            margin-top:25px;
+            background:#101317;
+            padding:20px;
+            border-radius:8px;
+            border:1px solid #2a2f3a;
+        }
+
+        .better{
+            font-size:18px;
+            font-weight:bold;
+            color:#ffd166;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Torn Armor Piece Damage Simulator</h1>
+
+    <div class="grid">
+
+        <div class="card">
+            <h2>Armor 1</h2>
+
+            Armor Name
+            <input id="armor1name" value="Armor 1">
+
+            Armor Value (%)
+            <input id="armor1value" value="39.17">
+
+            Coverage (%)
+            <input id="armor1coverage" value="27.45">
+
+        </div>
+
+
+        <div class="card">
+            <h2>Armor 2</h2>
+
+            Armor Name
+            <input id="armor2name" value="Armor 2">
+
+            Armor Value (%)
+            <input id="armor2value" value="42">
+
+            Coverage (%)
+            <input id="armor2coverage" value="26.5">
+
+        </div>
+
+    </div>
+
+    <div class="section">
+
+        <h2>Weapon</h2>
+
+        Weapon Damage
+        <input id="weaponDamage" value="50">
+
+        Number of Simulations
+        <input id="trials" value="100000">
+
+    </div>
+
+    <button onclick="runSimulation()">Run Simulation</button>
+
+    <div id="results" class="results"></div>
+
+</div>
+
+
+<script>
+
+    function simulateArmor(armorValue, coverage, weaponDamage, trials){
+
+        let totalDamage = 0;
+
+        for(let i=0;i<trials;i++){
+
+            let hitArmor = Math.random()*100 < coverage;
+
+            let damage = weaponDamage;
+
+            if(hitArmor){
+                damage = weaponDamage * (1 - armorValue/100);
+            }
+
+            totalDamage += damage;
+        }
+
+        return {
+            totalDamage: totalDamage,
+            avgDamage: totalDamage / trials
+        }
+
+    }
+
+
+    function runSimulation(){
+
+        let name1 = document.getElementById("armor1name").value;
+        let name2 = document.getElementById("armor2name").value;
+
+        let armor1value = parseFloat(document.getElementById("armor1value").value);
+        let armor1coverage = parseFloat(document.getElementById("armor1coverage").value);
+
+        let armor2value = parseFloat(document.getElementById("armor2value").value);
+        let armor2coverage = parseFloat(document.getElementById("armor2coverage").value);
+
+        let weaponDamage = parseFloat(document.getElementById("weaponDamage").value);
+        let trials = parseInt(document.getElementById("trials").value);
+
+
+        let armor1 = simulateArmor(armor1value, armor1coverage, weaponDamage, trials);
+        let armor2 = simulateArmor(armor2value, armor2coverage, weaponDamage, trials);
+
+
+        let better = armor1.avgDamage < armor2.avgDamage ? name1 : name2;
+
+
+        document.getElementById("results").innerHTML = `
+
+    <h2>Results</h2>
+
+    <b>${name1}</b><br>
+    Total Damage Taken: ${armor1.totalDamage.toFixed(2)}<br>
+    Average Damage Taken: ${armor1.avgDamage.toFixed(4)}
+    <br><br>
+
+    <b>${name2}</b><br>
+    Total Damage Taken: ${armor2.totalDamage.toFixed(2)}<br>
+    Average Damage Taken: ${armor2.avgDamage.toFixed(4)}
+    <br><br>
+
+    <div class="better">Better Armor: ${better}</div>
+
+    `;
+
+    }
+
+</script>
+
+</body>
+</html>
+
